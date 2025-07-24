@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'recap-56902.firebasestorage.app',
     iosBundleId: 'com.example.recap',
   );
+
 }

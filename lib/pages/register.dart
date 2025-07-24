@@ -61,17 +61,22 @@ class RegisterPage extends StatelessWidget {
                 text: "Sign Up",
                 ontap: () async {
                   try {
+                    // Method 1: Force disable app verification
+                    await FirebaseAuth.instance.setSettings(
+                      appVerificationDisabledForTesting: true,
+                      forceRecaptchaFlow: false,
+                    );
+
                     FirebaseAuth fire = FirebaseAuth.instance;
                     UserCredential user = await fire
                         .createUserWithEmailAndPassword(
                           email: email!,
                           password: password!,
                         );
-                    print(
-                      "User created: ${user.user!.email}",
-                    ); // This should print
+                    print("User created: ${user.user!.email}");
+                    print("UID: ${user.user!.uid}");
                   } catch (e) {
-                    print("Error: $e"); // This will show the actual error
+                    print("Error: $e");
                   }
                 },
               ),

@@ -6,20 +6,17 @@ class CustomButton extends StatelessWidget {
   VoidCallback? ontap;
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: ontap,
-      child: ElevatedButton(
-        onPressed: () {},
-        style: ButtonStyle(
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-          ),
+    return ElevatedButton(
+      onPressed: ontap??(){},
+      style: ButtonStyle(
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         ),
-        child: Center(
-          child: Text(
-            "$text",
-            style: TextStyle(color: Color(0xff314F6A), fontSize: 16),
-          ),
+      ),
+      child: Center(
+        child: Text(
+          "$text",
+          style: TextStyle(color: Color(0xff314F6A), fontSize: 16),
         ),
       ),
     );
