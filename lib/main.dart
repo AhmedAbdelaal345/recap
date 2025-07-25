@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +9,17 @@ import 'package:recap/pages/register.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterError.onError = (FlutterErrorDetails details) {
+    print('Flutter Error: ${details.exception}');
+    print('Stack trace: ${details.stack}');
+  };
 
+  // Handle platform exceptions
+  PlatformDispatcher.instance.onError = (error, stack) {
+    print('Platform Error: $error');
+    print('Stack trace: $stack');
+    return true;
+  };
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -29,7 +41,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       routes: {
         "LoginPage": (context) => LoginPage(),
-        "${RegisterPage().registerId}": (context) => RegisterPage(),
+        "${RegisterPage.id}": (context) => RegisterPage(),
       },
       initialRoute: "LoginPage",
     );

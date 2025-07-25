@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.chat_app"
+    namespace = "com.example.recap"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 

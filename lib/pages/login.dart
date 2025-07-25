@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:recap/constans.dart';
 import 'package:recap/pages/register.dart';
@@ -5,7 +6,8 @@ import 'package:recap/widgets/custom_button.dart';
 import 'package:recap/widgets/custom_textfiled.dart';
 
 class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+  String? email;
+  String? password;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -37,15 +39,53 @@ class LoginPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              CustomTextfiled(hintText: "Email", labelText: "Enter your Email"),
+              CustomTextfiled(
+                onChanged: (p0) {
+                  email = p0;
+                },
+                hintText: "Email",
+                labelText: "Enter your Email",
+              ),
               const SizedBox(height: 15),
               CustomTextfiled(
+                onChanged: (p0) {
+                  password = p0;
+                },
                 hintText: "Password",
                 labelText: "Enter your Password",
                 isScure: true,
               ),
               Spacer(flex: 3),
-              CustomButton(text: "Login"),
+              CustomButton(
+                ontap: () async {
+                  try {
+                    UserCredential user = await FirebaseAuth.instance
+                        .signInWithEmailAndPassword(
+                          email: email!,
+                          password: password!,
+                        );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Login Succeful",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } on FirebaseAuthException catch (e) {
+                    if (e.code == "user-not-found") {
+                      print('No user found for that email.');
+                    } else if (e.code == 'wrong-password') {
+                      print('Wrong password provided for that user.');
+                    }
+                    // TODO
+                  } catch (e) {
+                    print(e);
+                  }
+                },
+                text: "Login",
+              ),
               Center(
                 child: Row(
                   children: [
@@ -59,7 +99,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.pushNamed(context, RegisterPage().registerId);
+                        Navigator.pushNamed(context, RegisterPage.id);
                       },
                       child: Text(
                         "Register",

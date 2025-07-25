@@ -6,14 +6,17 @@ class CustomTextfiled extends StatelessWidget {
     required this.labelText,
     this.isScure,
     this.onChanged,
+    this.controller
   });
   String hintText;
   String labelText;
   bool? isScure;
+  TextEditingController? controller;
   Function(String)? onChanged;
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller:controller ,
       onChanged: onChanged ?? (value) {},
       style: TextStyle(color: Colors.white, fontSize: 14),
       cursorColor: Colors.white,
