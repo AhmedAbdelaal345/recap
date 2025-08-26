@@ -1,18 +1,31 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:recap/constans.dart';
 import 'package:recap/firebase_options.dart';
+import 'package:recap/pages/chat.dart';
 import 'package:recap/pages/login.dart';
 import 'package:recap/pages/register.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterError.onError = (FlutterErrorDetails details) {
-    print('Flutter Error: ${details.exception}');
-    print('Stack trace: ${details.stack}');
+    FlutterError.dumpErrorToConsole(details);
+    // optionally send error reports
   };
+
+  runZonedGuarded(
+    () {
+      runApp(MyApp());
+    },
+    (error, stack) {
+      print('🔴 Uncaught error: $error');
+      print(stack);
+    },
+  );
 
   // Handle platform exceptions
   PlatformDispatcher.instance.onError = (error, stack) {
@@ -28,8 +41,6 @@ void main() async {
   } catch (e) {
     print('Error initializing Firebase: $e');
   }
-
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -39,11 +50,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      theme: ThemeData(primaryColor: Constans.primiryColor),
       routes: {
-        "LoginPage": (context) => LoginPage(),
+        "${LoginPage.id}": (context) => LoginPage(),
         "${RegisterPage.id}": (context) => RegisterPage(),
+        "${ChatPage.id}": (context) => ChatPage(),
       },
-      initialRoute: "LoginPage",
+      initialRoute: "${LoginPage.id}",
     );
   }
 }

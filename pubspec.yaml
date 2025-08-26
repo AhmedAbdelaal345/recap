@@ -36,10 +36,18 @@ dependencies:
   cupertino_icons: ^1.0.8
   firebase_auth: ^5.7.0
   firebase_core: ^3.15.2
+  modal_progress_hud_nsn: ^0.5.1
+  cloud_firestore: ^5.6.12
+  intl: ^0.18.1
+  font_awesome_flutter: ^10.7.0
+
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: "^0.13.1"
+  flutter_native_splash: ^2.4.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -47,9 +55,25 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
-
-# For information on the generic Dart part of this file, see the
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/image.png" # used for iOS and legacy Android
+  adaptive_icon_background: "#FFFFFF" # or path to a background image asset
+  adaptive_icon_foreground: "assets/images/image.png" # your logo with transparency# For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+flutter_native_splash:
+  color: "#568F87"  # The background color of your splash screen
+  image: assets/images/image.png # The path to your logo
+
+  # For Android 12+ support, you can add a separate section
+  android_12:
+    color: "#568F87"
+    image: assets/images/image.png
+
+  # You can also specify dark mode versions
+  color_dark: "#568F87"
+  image_dark: assets/images/image.png
 
 # The following section is specific to Flutter packages.
 flutter:
@@ -61,7 +85,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/scholar.png
+    - assets/images/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

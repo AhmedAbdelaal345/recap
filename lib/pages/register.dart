@@ -1,214 +1,245 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:recap/constans.dart';
 import 'package:recap/widgets/custom_button.dart';
 import 'package:recap/widgets/custom_textfiled.dart';
 
 class RegisterPage extends StatefulWidget {
-  // Use 'static const' for route IDs, though 'String' is fine for now
   static const String id = 'RegisterPage';
-
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  // Use TextEditingController for robust input handling
-  // Remove String? email; and String? password; as they are not needed directly now
-  late final TextEditingController _emailController;
-  late final TextEditingController _passwordController;
-
+  String? email;
+  String? password;
+  GlobalKey<FormState> formKey = GlobalKey();
   bool isLoading = false;
+  // Removed isAsync as isLoading can serve the same purpose for ModalProgressHUD
 
-  @override
-  void initState() {
-    super.initState();
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
-  }
 
-  @override
-  void dispose() {
-    // Dispose controllers to prevent memory leaks
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
+  bool isPasswordVisible = false;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        backgroundColor: Constans.primiryColor,
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset("assets/images/scholar.png"),
-              Text(
-                "Scholar Chat",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Pacifico-Regular",
-                  color: Colors.white,
-                ),
-              ),
-              Spacer(flex: 5),
-              Row(
-                textDirection: TextDirection.ltr,
-                children: [
-                  Text(
-                    "Register",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              CustomTextfiled(
-                // **CRITICAL CHANGE: Use controller instead of onChanged**
-                controller: _emailController,
-                hintText: "Email",
-                labelText: "Enter your Email",
-              ),
-              const SizedBox(height: 15),
-              CustomTextfiled(
-                // **CRITICAL CHANGE: Use controller instead of onChanged**
-                controller: _passwordController,
-                hintText: "Password",
-                labelText: "Enter your Password",
-                isScure: true,
-              ),
-              Spacer(flex: 3),
-              CustomButton(
-                text: isLoading ? "Creating Account..." : "Sign Up",
-                ontap:
-                    isLoading
-                        ? null
-                        : () async {
-                          // Get values directly from controllers, trimming whitespace
-                          final String email = _emailController.text.trim();
-                          final String password =
-                              _passwordController.text.trim();
-
-                          // Validate inputs first
-                          if (email.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Please enter your email"),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            return;
-                          }
-
-                          if (password.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Please enter your password"),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            return;
-                          }
-
-                          setState(() {
-                            isLoading = true;
-                          });
-
-                          try {
-                            FirebaseAuth fire = FirebaseAuth.instance;
-                            UserCredential
-                            user = await fire.createUserWithEmailAndPassword(
-                              email:
-                                  email, // Now 'email' is guaranteed to be a non-null String
-                              password:
-                                  password, // Now 'password' is guaranteed to be a non-null String
-                            );
-
-                            print("User created: ${user.user!.email}");
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Account created successfully!"),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-
-                            Navigator.pop(
-                              context,
-                            ); // Or navigate to another page like home
-                          } on FirebaseAuthException catch (e) {
-                            String message = '';
-                            if (e.code == 'email-already-in-use') {
-                              message =
-                                  'This email is already registered. Try logging in instead.';
-                            } else if (e.code == 'weak-password') {
-                              message =
-                                  'Password is too weak. Use at least 6 characters.';
-                            } else if (e.code == 'invalid-email') {
-                              message = 'Please enter a valid email address.';
-                            } else {
-                              message =
-                                  'Registration failed: ${e.message ?? "An unknown Firebase error occurred."}';
-                            }
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(message),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            print(
-                              "Firebase Auth Error: ${e.code} - ${e.message}",
-                            );
-                          } catch (e) {
-                            // This catches any *other* exceptions, like network issues or the
-                            // `_TypeError` if it somehow still occurs (though it shouldn't with controllers)
-                            print("Unexpected error: $e");
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "An unexpected error occurred. Please try again.",
-                                ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          } finally {
-                            setState(() {
-                              isLoading = false;
-                            });
-                          }
-                        },
-              ),
-              Center(
-                child: Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center, // Added for better centering
+      child: ModalProgressHUD(
+        inAsyncCall: isLoading, // Use isLoading directly
+        color: Colors.blue, // Added from the second code
+        progressIndicator: CircularProgressIndicator(
+          color: Colors.blue,
+        ), // Added from the second code
+        child: Scaffold(
+          backgroundColor: Constans.primiryColor,
+          body: Form(
+            key: formKey,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  // Changed to ListView for simpler scrolling handling
+                  // Removed LayoutBuilder, ConstrainedBox, IntrinsicHeight
                   children: [
-                    Text(
-                      "Do you have an account ? ",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
+                    SizedBox(height: 20),
+                    Image.asset(
+                      Constans.image,
+                      fit: BoxFit.scaleDown,
                     ),
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
+
+                    // Center(
+                    //   child: Text(
+                    //     "Scholar Chat",
+                    //     style: TextStyle(
+                    //       fontSize: 16,
+                    //       fontWeight: FontWeight.bold,
+                    //       fontFamily: "Pacifico-Regular",
+                    //       color: Constans.thirdColor,
+                    //     ),
+                    //   ),
+                    // ),
+                    const SizedBox(height: 40),
+                    Row(
+                      textDirection: TextDirection.ltr,
+                      children: [
+                        Text(
+                          "Register",
+                          style: TextStyle(color: Constans.textColor, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    CustomTextfiled(
+                      isScure: false,
+                      onChanged: (data) {
+                        email = data;
                       },
-                      child: Text(
-                        "Login",
-                        style: TextStyle(color: Color(0xffCFF4F3)),
+                      hintText: "Email",
+                      labelText: "Enter your Email",
+                      enabled: !isLoading,
+                    ),
+                    const SizedBox(height: 15),
+                    CustomTextfiled(
+                     suffixIcon: IconButton(
+                       onPressed: () {
+                         setState(() {
+                           isPasswordVisible = !isPasswordVisible;
+                         });
+                       },
+                       icon: !isPasswordVisible
+                           ? Icon(
+                         Icons.visibility_outlined,
+                         color: Constans.textColor,
+                         size: 20,
+                       )
+                           : Icon(
+                         Icons.visibility_off_outlined,
+                         color: Constans.textColor
+                         ,
+                         size: 20,
+                       ),
+                     ),
+
+                      onChanged: (data) {
+                        password = data;
+                      },
+                      hintText: "Password",
+                      labelText: "Enter your Password",
+                      isScure: isPasswordVisible,
+                      enabled: !isLoading,
+
+                    ),
+                    const SizedBox(height: 30),
+                    CustomButton(
+                      text: isLoading ? "Creating Account..." : "Sign Up",
+                      ontap:
+                          isLoading
+                              ? null
+                              : () async {
+                                if (formKey.currentState!.validate()) {
+                                  if (email == null || password == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Email and password cannot be empty.",
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return; // Exit if fields are empty
+                                  }
+
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+
+                                  try {
+                                    await FirebaseAuth.instance
+                                        .createUserWithEmailAndPassword(
+                                          email: email!,
+                                          password: password!,
+                                        );
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            "Account created successfully!",
+                                          ),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                      Navigator.pop(context);
+                                    }
+                                  } on FirebaseAuthException catch (e) {
+                                    String errorMessage =
+                                        'Registration failed: ${e.message}';
+                                    if (e.code == 'email-already-in-use') {
+                                      List<String> providers =
+                                          await FirebaseAuth.instance
+                                              .fetchSignInMethodsForEmail(
+                                                email!,
+                                              ); // Await this call
+                                      String existingProviders = providers.join(
+                                        ', ',
+                                      );
+                                      errorMessage =
+                                          'This email is already registered. Try signing in using: $existingProviders';
+                                    } else if (e.code == 'weak-password') {
+                                      errorMessage =
+                                          'The password provided is too weak.';
+                                    } else if (e.code == 'invalid-email') {
+                                      errorMessage =
+                                          'The email address is not valid.';
+                                    }
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(errorMessage),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'An unexpected error occurred: $e',
+                                          ),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  } finally {
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                  }
+                                }
+                              },
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Do you have an account ? ",
+                            style: TextStyle(
+                              color: Constans.thirdColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                          InkWell(
+                            onTap:
+                                isLoading
+                                    ? null
+                                    : () {
+                                      Navigator.pop(context);
+                                    },
+                            child: Text(
+                              "Login",
+                              style: TextStyle(
+                                color:
+                                    isLoading ? Colors.grey : Color(0xffCFF4F3),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
-              Spacer(flex: 4),
-            ],
+            ),
           ),
         ),
       ),

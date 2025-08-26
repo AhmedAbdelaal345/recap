@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:recap/constans.dart';
 
 class CustomButton extends StatelessWidget {
   CustomButton({required this.text, this.ontap});
@@ -11,6 +12,7 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: ontap, 
       style: ButtonStyle(
+        backgroundColor: WidgetStatePropertyAll(Constans.thirdColor),
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         ),
@@ -18,7 +20,7 @@ class CustomButton extends StatelessWidget {
       child: Center(
         child: Text(
           "$text",
-          style: TextStyle(color: Color(0xff314F6A), fontSize: 16),
+          style: TextStyle(color: Constans.primiryColor, fontSize: 16),
         ),
       ),
     );
